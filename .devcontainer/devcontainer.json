@@ -1,0 +1,7 @@
+{
+    "dockerComposeFile": "docker-compose.yml",
+    "extensions": [],
+    "service": "kindergarten",
+    "shutdownAction": "stopCompose",
+    "workspaceFolder": "/workspace"
+}

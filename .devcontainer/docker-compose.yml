@@ -1,0 +1,44 @@
+version: "3.9"
+services:
+  kindergarten:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    depends_on: 
+      - docker
+    environment:
+      DOCKER_CERT_PATH: /certs/client
+      DOCKER_HOST: tcp://docker:2376
+      DOCKER_TLS_CERTDIR: /certs
+      DOCKER_TLS_VERIFY: 1
+    networks:
+      - kindergarten
+    volumes:
+      - ..:/workspace:cached
+      - type: volume
+        source: kindergarten-client
+        target: /certs/client
+        read_only: true
+  docker:
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+    image: docker:dind
+    environment:
+      DOCKER_TLS_CERTDIR: /certs
+    expose: 
+      - "2375-2376/tcp"
+    networks:
+      - kindergarten
+    privileged: true
+    volumes:
+      - kindergarten-ca:/certs/ca
+      - kindergarten-client:/certs/client
+
+networks:
+  kindergarten:
+
+volumes:
+  kindergarten-ca:
+  kindergarten-client:
