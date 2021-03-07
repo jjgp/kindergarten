@@ -1,5 +1,7 @@
 FROM alpine:3.13
 
+LABEL maintainer="Jason Prasad <jasongprasad@gmail.com>"
+
 ENV KFCTL_VERSION=v1.2.0
 ENV KUBECTL_VERSION=v1.20.4
 RUN apk add --no-cache \

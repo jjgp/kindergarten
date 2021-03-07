@@ -1,5 +1,7 @@
-FROM jjgp/kindergarten:kube as base
+FROM jjgp/kindergarten:latest as base
 FROM docker:latest
+
+LABEL maintainer="Jason Prasad <jasongprasad@gmail.com>"
 
 COPY --from=base /usr/local/bin/kfctl /usr/local/bin
 COPY --from=base /usr/local/bin/kubectl /usr/local/bin

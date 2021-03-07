@@ -1,4 +1,6 @@
-FROM jjgp/kindergarten:kube
+FROM jjgp/kindergarten
+
+LABEL maintainer="Jason Prasad <jasongprasad@gmail.com>"
 
 ENV AWS_IAM_AUTHENTICATOR_VERSION=1.19.6/2021-01-05
 ENV EKSCTL_VERSION=0.40.0
