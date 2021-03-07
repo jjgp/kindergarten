@@ -1,6 +1,6 @@
 {
     "name": "Docker from Docker",
-    "dockerFile": "Dockerfile",
+    "image": "jjgp/kindergarten:kind",
     "extensions": [],
     "mounts": ["source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"],
     "runArgs": ["--network=host"]
