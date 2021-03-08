@@ -1,4 +1,4 @@
-FROM jjgp/kindergarten
+FROM jjgp/kindergarten:kfctl
 
 LABEL maintainer="Jason Prasad <jasongprasad@gmail.com>"
 

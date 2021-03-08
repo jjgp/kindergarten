@@ -1,4 +1,4 @@
-FROM jjgp/kindergarten:latest as base
+FROM jjgp/kindergarten:kfctl as base
 FROM docker:latest
 
 LABEL maintainer="Jason Prasad <jasongprasad@gmail.com>"
