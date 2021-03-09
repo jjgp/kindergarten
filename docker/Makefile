@@ -1,6 +1,6 @@
+DOCKER_DIR? =
 PROJECT = kindergarten
 REPOSITORY = jjgp
-DOCKER_DIR? =
 VARIANTS = $(patsubst %.Dockerfile,%,$(notdir $(shell find . -type f -name *.Dockerfile)))
 IMAGE_TARGETS = $(addsuffix -image,$(VARIANTS))
 PUSH_TARGETS = $(addsuffix -push,$(VARIANTS))
@@ -13,7 +13,9 @@ all: $(PUSH_TARGETS)
 all-images: $(IMAGE_TARGETS)
 
 eksctl-image: | kfctl-image
+
 kind-image: | kfctl-image
+
 $(IMAGE_TARGETS): %-image:
 	@docker build -t $(REPOSITORY)/$(PROJECT):$* - < $(DOCKER_DIR)/$*.Dockerfile
 
@@ -22,7 +24,8 @@ $(PUSH_TARGETS): %-push: | %-image
 
 kind-run: DOCKER_RUN_OPTIONS := --network=host \
 	-v /var/run/docker.sock:/var/run/docker.sock
-$(RUN_TARGETS): %-run:
+
+$(RUN_TARGETS): %-run | %-image:
 	@docker run -d \
 		-v "$(CURDIR)":/workspace:cached \
 		$(DOCKER_RUN_OPTIONS) \

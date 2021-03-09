@@ -1,3 +1,9 @@
 DOCKER_DIR?=docker
 
-include docker/Makefile
+%-run: force
+	@$(MAKE) -f docker/Makefile $@
+
+force: ;
+
+help:
+	@echo "make [TAG]-run        : run image with [TAG]"
