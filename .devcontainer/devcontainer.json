@@ -1,0 +1,8 @@
+{
+	"name": "",
+	"extensions": [],
+	"settings": {
+		"terminal.integrated.shell.linux": "/bin/sh"
+	},
+	"workspaceFolder": "/workspace"
+}
