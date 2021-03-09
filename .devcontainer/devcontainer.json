@@ -2,7 +2,7 @@
 	"name": "",
 	"extensions": [],
 	"settings": {
-		"terminal.integrated.shell.linux": "/bin/sh"
+		"terminal.integrated.shell.linux": "/bin/ash"
 	},
 	"workspaceFolder": "/workspace"
 }

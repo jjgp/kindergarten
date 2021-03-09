@@ -1,10 +1,10 @@
-PROJECT=kindergarten
-REPOSITORY=jjgp
-DOCKER_DIR?=
-VARIANTS=$(patsubst %.Dockerfile,%,$(notdir $(shell find . -type f -name *.Dockerfile)))
-IMAGE_TARGETS=$(addsuffix -image,$(VARIANTS))
-PUSH_TARGETS=$(addsuffix -push,$(VARIANTS))
-RUN_TARGETS=$(addsuffix -run,$(VARIANTS))
+PROJECT = kindergarten
+REPOSITORY = jjgp
+DOCKER_DIR? =
+VARIANTS = $(patsubst %.Dockerfile,%,$(notdir $(shell find . -type f -name *.Dockerfile)))
+IMAGE_TARGETS = $(addsuffix -image,$(VARIANTS))
+PUSH_TARGETS = $(addsuffix -push,$(VARIANTS))
+RUN_TARGETS = $(addsuffix -run,$(VARIANTS))
 
 .PHONY: all $(IMAGE_TARGETS) clean help $(PUSH_TARGETS) $(RUN_TARGETS)
 
@@ -20,8 +20,13 @@ $(IMAGE_TARGETS): %-image:
 $(PUSH_TARGETS): %-push: | %-image
 	@docker push $(REPOSITORY)/$(PROJECT):$*
 
+kind-run: DOCKER_RUN_OPTIONS := --network=host \
+	-v /var/run/docker.sock:/var/run/docker.sock
 $(RUN_TARGETS): %-run:
-	@docker run -d $(REPOSITORY)/$(PROJECT):$* \
+	@docker run -d \
+		-v "$(CURDIR)":/workspace:cached \
+		$(DOCKER_RUN_OPTIONS) \
+		$(REPOSITORY)/$(PROJECT):$* \
 		/bin/sh -c "while sleep 1000; do :; done"
 
 help:
