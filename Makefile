@@ -1,9 +1,50 @@
-DOCKER_DIR?=docker
+DOCKER_DIR = docker/
+IMAGE_CONFIGS_PATH ?=
+PROJECT ?= kindergarten
+REMOTE_CONTAINERS_STORAGE_PATH ?=
+REPOSITORY ?= jjgp
 
-%-run: force
-	@$(MAKE) -f docker/Makefile $@
+ifeq ($(shell uname -s),Darwin)
+REMOTE_CONTAINERS_STORAGE_PATH = ~/Library/Application\ Support/Code/User/globalStorage/ms-vscode-remote.remote-containers
+IMAGE_CONFIGS_PATH := $(REMOTE_CONTAINERS_STORAGE_PATH)/imageConfigs
+endif
+
+define IMAGE_CONFIG
+{
+    "settings": {
+        "terminal.integrated.shell.linux": "/bin/ash"
+    },
+    "workspaceFolder": "/workspace"
+}
+endef
+
+%-image-config: export IMAGE_CONFIG := $(IMAGE_CONFIG)
+%-image-config:
+ifneq ($(wildcard $(REMOTE_CONTAINERS_STORAGE_PATH)),)
+ifneq ($(IMAGE_CONFIGS_PATH),)
+	@echo "$$IMAGE_CONFIG" > $(IMAGE_CONFIGS_PATH)/$(REPOSITORY)%2f$(PROJECT)%3a$*.json
+else
+	$(warning WARNING: failed to write image config. IMAGE_CONFIGS_PATH not set.)
+endif # ifneq ($(IMAGE_CONFIGS_PATH),)
+else
+	$(warning WARNING: failed to write image config. REMOTE_CONTAINERS_STORAGE_PATH not present.)
+endif # ifneq ($(wildcard $(REMOTE_CONTAINERS_STORAGE_PATH),)
+
+%-run: force %-image-config $(DOCKER_DIR)/%.Dockerfile
+	@$(MAKE) DOCKER_DIR=docker/ PROJECT=$(PROJECT) REPOSITORY=$(REPOSITORY) -f docker/Makefile $@
 
 force: ;
 
+kill-containers:
+	docker kill $$(docker ps | grep "$(REPOSITORY)/$(PROJECT)" | awk '{ print $$1 }')
+
+clean:
+ifneq ($(IMAGE_CONFIGS_PATH),)
+	rm $(IMAGE_CONFIGS_PATH)/$(REPOSITORY)%2f$(PROJECT)%3a*.json
+endif
+
 help:
-	@echo "make [TAG]-run        : run image with [TAG]"
+	@echo "make [TAG]-image-config      : makes a devcontainer.json in the globalStorage to support attaching to containers"
+	@echo "make [TAG]-run               : run image with [TAG]"
+	@echo "make kill-containers         : kill running containers"
+	@echo "make clean                   : remove image configs"

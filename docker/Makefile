@@ -1,6 +1,6 @@
-DOCKER_DIR? =
-PROJECT = kindergarten
-REPOSITORY = jjgp
+DOCKER_DIR ?=
+PROJECT ?=
+REPOSITORY ?=
 VARIANTS = $(patsubst %.Dockerfile,%,$(notdir $(shell find . -type f -name *.Dockerfile)))
 IMAGE_TARGETS = $(addsuffix -image,$(VARIANTS))
 PUSH_TARGETS = $(addsuffix -push,$(VARIANTS))
@@ -25,7 +25,7 @@ $(PUSH_TARGETS): %-push: | %-image
 kind-run: DOCKER_RUN_OPTIONS := --network=host \
 	-v /var/run/docker.sock:/var/run/docker.sock
 
-$(RUN_TARGETS): %-run | %-image:
+$(RUN_TARGETS): %-run: | %-image
 	@docker run -d \
 		-v "$(CURDIR)":/workspace:cached \
 		$(DOCKER_RUN_OPTIONS) \
