@@ -1,6 +1,7 @@
 DOCKER_DIR = docker/
 IMAGE_CONFIGS_PATH ?=
 PROJECT ?= kindergarten
+REMOTE_CONTAINERS_EXTENSION = ms-vscode-remote.remote-containers
 REMOTE_CONTAINERS_STORAGE_PATH ?=
 REPOSITORY ?= jjgp
 
@@ -20,15 +21,15 @@ endef
 
 %-image-config: export IMAGE_CONFIG := $(IMAGE_CONFIG)
 %-image-config:
-ifneq ($(wildcard $(REMOTE_CONTAINERS_STORAGE_PATH)),)
-ifneq ($(IMAGE_CONFIGS_PATH),)
+ifeq ($(filter $(REMOTE_CONTAINERS_EXTENSION), $(shell code --)),)
+	@echo foobar
+endif
+ifneq ($(REMOTE_CONTAINERS_STORAGE_PATH),)
+	@mkdir -p $(IMAGE_CONFIGS_PATH)
 	@echo "$$IMAGE_CONFIG" > $(IMAGE_CONFIGS_PATH)/$(REPOSITORY)%2f$(PROJECT)%3a$*.json
 else
-	$(warning WARNING: failed to write image config. IMAGE_CONFIGS_PATH not set.)
-endif # ifneq ($(IMAGE_CONFIGS_PATH),)
-else
 	$(warning WARNING: failed to write image config. REMOTE_CONTAINERS_STORAGE_PATH not present.)
-endif # ifneq ($(wildcard $(REMOTE_CONTAINERS_STORAGE_PATH),)
+endif
 
 %-run: force %-image-config $(DOCKER_DIR)/%.Dockerfile
 	@$(MAKE) DOCKER_DIR=docker/ PROJECT=$(PROJECT) REPOSITORY=$(REPOSITORY) -f docker/Makefile $@
@@ -40,7 +41,7 @@ kill-containers:
 
 clean:
 ifneq ($(IMAGE_CONFIGS_PATH),)
-	rm $(IMAGE_CONFIGS_PATH)/$(REPOSITORY)%2f$(PROJECT)%3a*.json
+	@rm -rf $(IMAGE_CONFIGS_PATH)/$(REPOSITORY)%2f$(PROJECT)%3a*.json
 endif
 
 help:
