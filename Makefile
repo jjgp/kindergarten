@@ -8,7 +8,7 @@ endif
 PROJECT ?= kindergarten
 REPOSITORY ?= jjgp
 
-.PHONY: help
+.PHONY: help pre-commit-install
 
 check-code-extensions: CODE_INSTALLED_EXTENSIONS := $(shell code --list-extensions)
 check-code-extensions: force
@@ -30,6 +30,8 @@ endif
 
 doctor: check-code-path check-code-extensions check-image-configs-path
 
+force: ;@:
+
 define IMAGE_CONFIG
 {
     "settings": {
@@ -40,27 +42,29 @@ define IMAGE_CONFIG
 endef
 
 %-image-config: export IMAGE_CONFIG := $(IMAGE_CONFIG)
-%-image-config: check-image-path
+%-image-config: check-image-configs-path
 	@echo "$$IMAGE_CONFIG" > $(IMAGE_CONFIGS_PATH)/$(REPOSITORY)%2f$(PROJECT)%3a$*.json
 
 install-code-extensions: force
 	@$(foreach extension,$(CODE_EXTENSIONS),code --install-extension $(extension) --force;)
 
-%-run: force %-image-config $(DOCKER_DIR)/%.Dockerfile
+%-run: %-image-config $(DOCKER_DIR)/%.Dockerfile
 	@$(MAKE) DOCKER_DIR=docker/ PROJECT=$(PROJECT) REPOSITORY=$(REPOSITORY) -f docker/Makefile $@
-
-force: ;@:
 
 kill-containers:
 	docker kill $$(docker ps | grep "$(REPOSITORY)/$(PROJECT)" | awk '{ print $$1 }')
 
+pre-commit-install:
+	@echo foobar
+
 help:
 	@echo "make doctor                       : checks for project dependencies"
 	@echo "make install-code-extensions      : install missing code extensions"
+	@echo "make kill-containers              : kill running containers"
+	@echo "make pre-commit-install           : installs pre-commit git hook"
 	@echo "make [TAG]-image-config           : makes a devcontainer.json in the globalStorage to support attaching to containers"
 	@echo "make [TAG]-run                    : run image with [TAG]"
-	@echo "make kill-containers              : kill running containers"
 	@echo "make clean                        : remove image configs"
 
-clean: check-image-path
+clean: check-image-configs-path
 	rm -rf $(IMAGE_CONFIGS_PATH)/$(REPOSITORY)%2f$(PROJECT)%3a*.json
