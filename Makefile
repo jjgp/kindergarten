@@ -5,9 +5,6 @@ ifeq ($(shell uname -s),Darwin)
 IMAGE_CONFIGS_PATH = ~/Library/Application\ Support/Code/User/globalStorage/ms-vscode-remote.remote-containers/imageConfigs
 endif
 
-PROJECT ?= kindergarten
-REPOSITORY ?= jjgp
-
 .PHONY: help pre-commit-install
 
 check-code-extensions: CODE_INSTALLED_EXTENSIONS := $(shell code --list-extensions)
@@ -49,10 +46,20 @@ install-code-extensions: force
 	@$(foreach extension,$(CODE_EXTENSIONS),code --install-extension $(extension) --force;)
 
 %-run: %-image-config $(DOCKER_DIR)/%.Dockerfile
-	@$(MAKE) DOCKER_DIR=docker/ PROJECT=$(PROJECT) REPOSITORY=$(REPOSITORY) -f docker/Makefile $@
+	@$(MAKE) DOCKER_DIR=docker/ -f docker/Makefile $@
 
 kill-containers:
-	docker kill $$(docker ps | grep "$(REPOSITORY)/$(PROJECT)" | awk '{ print $$1 }')
+	@docker kill $$(docker ps | grep "$(REPOSITORY)/$(PROJECT)" | awk '{ print $$1 }')
+
+
+define PRE_COMMIT_HOOK
+{
+    "settings": {
+        "terminal.integrated.shell.linux": "/bin/ash"
+    },
+    "workspaceFolder": "/workspace"
+}
+endef
 
 pre-commit-install:
 	@echo foobar

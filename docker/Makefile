@@ -1,7 +1,7 @@
-DOCKER_DIR ?=
-PROJECT ?=
-REPOSITORY ?=
-VARIANTS = $(patsubst %.Dockerfile,%,$(notdir $(shell find . -type f -name *.Dockerfile)))
+DOCKER_DIR ?= .
+PROJECT = kindergarten
+REPOSITORY = jjgp
+VARIANTS = $(patsubst %.Dockerfile,%,$(notdir $(shell find . -type f -name "*.Dockerfile")))
 IMAGE_TARGETS = $(addsuffix -image,$(VARIANTS))
 PUSH_TARGETS = $(addsuffix -push,$(VARIANTS))
 RUN_TARGETS = $(addsuffix -run,$(VARIANTS))
@@ -13,9 +13,7 @@ all: $(PUSH_TARGETS)
 all-images: $(IMAGE_TARGETS)
 
 eksctl-image: | kfctl-image
-
 kind-image: | kfctl-image
-
 $(IMAGE_TARGETS): %-image:
 	@docker build -t $(REPOSITORY)/$(PROJECT):$* - < $(DOCKER_DIR)/$*.Dockerfile
 
